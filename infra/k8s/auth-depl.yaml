@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: auth
-          image: vomilas/auth
+          image: us.gcr.io/ticketing-dev-276915/auth
 ---
 apiVersion: v1
 kind: Service
