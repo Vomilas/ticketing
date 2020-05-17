@@ -42,10 +42,6 @@ const ticketSchema = new mongoose.Schema(
   }
 );
 
-// ticketSchema.pre("save", async function(done) {
-//   done();
-// });
-
 ticketSchema.statics.build = (attrs: TicketAttrs) => {
   return new Ticket(attrs);
 };
