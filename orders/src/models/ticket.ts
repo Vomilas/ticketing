@@ -1,39 +1,29 @@
 import mongoose from "mongoose";
 
-interface OrderAttrs {
-  userId: string;
-  status: string;
-  expiresAt: Date;
-  ticket: TicketDoc;
+interface TicketAttrs {
+  title: string;
+  price: string;
 }
 
-interface OrderDoc extends mongoose.Document {
-  userId: string;
-  status: string;
-  expiresAt: Date;
-  ticket: TicketDoc;
+export interface TicketDoc extends mongoose.Document {
+  title: string;
+  price: string;
 }
 
-interface OrderModel extends mongoose.Model<OrderDoc> {
-  build(attrs: OrderAttrs): OrderDoc;
+interface TicketModel extends mongoose.Model<TicketDoc> {
+  build(attrs: TicketAttrs): TicketDoc;
 }
 
-const orderSchema = new mongoose.Schema(
+const ticketSchema = new mongoose.Schema(
   {
-    userId: {
+    title: {
       type: String,
       required: true
     },
-    status: {
+    price: {
       type: String,
-      required: true
-    },
-    expiresAt: {
-      type: mongoose.Schema.Types.Date
-    },
-    ticket: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Ticket"
+      required: true,
+      min: 0
     }
   },
   {
@@ -47,10 +37,10 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
-orderSchema.statics.build = (attrs: OrderAttrs) => {
-  return new Order(attrs);
+ticketSchema.statics.build = (attrs: TicketAttrs) => {
+  return new Ticket(attrs);
 };
 
-const Order = mongoose.model<OrderDoc, OrderModel>("Order", orderSchema);
+const Ticket = mongoose.model<TicketDoc, TicketModel>("Ticket", ticketSchema);
 
-export { Order };
+export { Ticket };
