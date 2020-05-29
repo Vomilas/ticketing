@@ -4,7 +4,8 @@ import {
   requireAuth,
   validateRequest,
   NotAuthorizedError,
-  NotFoundError
+  NotFoundError,
+  BadRequestError
 } from "@safdev/common";
 import { Ticket } from "../models/ticket";
 import { TicketUpdatedPublisher } from "../events/publishers/ticket-updated-publisher";
@@ -30,6 +31,10 @@ router.put(
 
     if (!ticket) {
       throw new NotFoundError();
+    }
+
+    if (ticket.orderId) {
+      throw new BadRequestError("Cannot edit a reserved ticket");
     }
 
     if (ticket.userId !== req.currentUser!.id) {
