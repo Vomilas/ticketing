@@ -1,7 +1,9 @@
 name: tests-orders
 
-on: 
+on:
   pull_request:
+    path:
+      - "orders/**"
 
 jobs:
   build:
