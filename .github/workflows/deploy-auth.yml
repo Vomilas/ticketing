@@ -8,13 +8,35 @@ on:
       - 'auth/**'
       
 jobs:
-  build:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: cd auth && docker build -t vomilas/auth .
-      - run: docker login -u DOCKER_USERNAME -p DOCKER_PASSWORD
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  
-      - run: docker push vomilas/auth  
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Setup gcloud CLI
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '270.0.0'
+        service_account_key: ${{ secrets.GCLOUD_AUTH }}
+
+    # Configure docker to use the gcloud command-line tool as a credential helper
+    - run: |
+        # Set up docker to authenticate
+        # via gcloud command-line tool.
+        gcloud auth configure-docker
+      
+    # Build the Docker image
+    - name: Build
+      run: |        
+        cd auth && docker build . --tag us.gcr.io/${{ secrets.GCLOUD_PROJECT }}/auth
+    # Push the Docker image to Google Container Registry
+    - name: Publish
+      run: |
+        docker push us.gcr.io/${{ secrets.GCLOUD_PROJECT }}/auth
+        
+    # Deploy the Docker image to the GKE cluster
+    - name: Deploy
+      run: |
+        gcloud components install beta && gcloud beta run deploy auth --quiet --image us.gcr.io/${{ secrets.GCLOUD_PROJECT }}/auth --project ${{ secrets.GCLOUD_PROJECT }} --region europe-west1 --platform managed
